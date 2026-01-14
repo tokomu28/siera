@@ -1,19 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:id="@+id/main"
+    android:background="@android:color/white">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/logo_siera"
+            android:adjustViewBounds="true"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Silakan masuk ke akun Anda\nuntuk melanjutkan."
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Email -->
+
+        <!-- Password -->
+        <EditText
+            android:id="@+id/edtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_input"
+            android:drawablePadding="12dp"
+            android:drawableStart="@drawable/ic_mail"
+            android:hint="Masukkan email atau npm"
+            android:inputType="textEmailAddress"
+            android:paddingStart="16dp" />
+
+        <EditText
+            android:id="@+id/edtPassword"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:hint="Masukkan password"
+            android:drawableStart="@drawable/ic_lock"
+            android:paddingStart="16dp"
+            android:drawablePadding="12dp"
+            android:background="@drawable/bg_input"
+            android:inputType="textPassword"/>
+
+        <!-- Lupa password -->
+        <TextView
+            android:id="@+id/txtForgot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lupa password?"
+            android:textAlignment="viewEnd"
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Button Login -->
+
+        <!-- Register -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_button"
+            android:text="Login"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="belum punya akun?"
+            android:textSize="14sp"
+            android:layout_marginRight="8dp"
+            android:textColor="#000000"/>
+        <TextView
+            android:id="@+id/register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="buat akun"
+            android:textSize="14sp"
+            android:textColor="#1F3C88"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

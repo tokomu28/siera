@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="180dp"
+            android:layout_height="70dp"
+            android:src="@drawable/logo_siera"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Masukkan detail Anda di bawah\nini untuk mulai menggunakan SIERA."
+            android:textAlignment="center"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Nama Lengkap -->
+        <EditText
+            android:id="@+id/edtNama"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:hint="Masukkan nama lengkap"
+            android:drawableStart="@drawable/ic_user"
+            android:drawablePadding="12dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/bg_input"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/edtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:hint="Masukkan email"
+            android:drawableStart="@drawable/ic_mail"
+            android:drawablePadding="12dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/bg_input"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- NPM -->
+        <EditText
+            android:id="@+id/edtNpm"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:hint="Masukkan npm"
+            android:drawableStart="@drawable/ic_id"
+            android:drawablePadding="12dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/bg_input"
+            android:inputType="number"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Password -->
+        <EditText
+            android:id="@+id/edtPassword"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:hint="Masukkan password"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="12dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/bg_input"
+            android:inputType="textPassword"
+            android:layout_marginBottom="16dp"/>
+
+        <CheckBox
+            android:id="@+id/cbAgreement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I agree to the Terms of Service and Privacy Policy."
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btnSignUp"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="Sign Up"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button"
+            android:backgroundTint="@null"
+            android:layout_marginBottom="24dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sudah punya akun?"
+                android:layout_marginRight="8dp"
+                android:textSize="14sp"
+                android:textColor="#000000"/>
+            <TextView
+                android:id="@+id/login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="masuk"
+                android:textSize="14sp"
+                android:textColor="#1F3C88"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</ScrollView>

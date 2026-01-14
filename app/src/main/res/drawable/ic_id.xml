@@ -1,0 +1,51 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Card background -->
+    <path
+        android:fillColor="#8C7A4A"
+        android:pathData="M3,5
+                          h18
+                          a2,2 0 0 1 2,2
+                          v10
+                          a2,2 0 0 1 -2,2
+                          h-18
+                          a2,2 0 0 1 -2,-2
+                          v-10
+                          a2,2 0 0 1 2,-2z"/>
+
+    <!-- Head -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M8,11
+                          m-2,0
+                          a2,2 0 1,1 4,0
+                          a2,2 0 1,1 -4,0"/>
+
+    <!-- Body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,15
+                          c0,-1.5 4,-1.5 4,0
+                          v1
+                          h-4z"/>
+
+    <!-- Text line 1 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13,10
+                          h6
+                          v1.5
+                          h-6z"/>
+
+    <!-- Text line 2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13,13
+                          h4
+                          v1.5
+                          h-4z"/>
+</vector>
