@@ -2,39 +2,84 @@ package com.lab.siera;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView btnRegister;
+    EditText edtEmail, edtPassword;
+    Button btnLogin;
+    TextView txtRegister;
+    DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        btnRegister = findViewById(R.id.register);
+        // Inisialisasi DataManager dengan context
+        dataManager = DataManager.getInstance(this);
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(MainActivity.this, RegisterActivity.class);
-                startActivity(intent);
+        edtEmail = findViewById(R.id.edtEmail);
+        edtPassword = findViewById(R.id.edtPassword);
+        btnLogin = findViewById(R.id.btnLogin);
+        txtRegister = findViewById(R.id.register);
+
+        // Auto-fill email jika dari register
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("EMAIL")) {
+            edtEmail.setText(intent.getStringExtra("EMAIL"));
+        }
+
+        btnLogin.setOnClickListener(v -> {
+            if (validateLoginForm()) {
+                checkLogin();
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        txtRegister.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+            finish();
         });
+    }
+
+    private boolean validateLoginForm() {
+        String email = edtEmail.getText().toString().trim();
+        String password = edtPassword.getText().toString().trim();
+
+        if (email.isEmpty()) {
+            edtEmail.setError("Email tidak boleh kosong");
+            return false;
+        }
+        if (password.isEmpty()) {
+            edtPassword.setError("Password tidak boleh kosong");
+            return false;
+        }
+        return true;
+    }
+
+    private void checkLogin() {
+        String email = edtEmail.getText().toString().trim();
+        String password = edtPassword.getText().toString().trim();
+
+        if (dataManager.validateLogin(email, password)) {
+            Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show();
+
+            // Ambil data user
+            DataManager.User user = dataManager.getUserByEmail(email);
+
+            // Pindah ke HomeActivity dengan membawa data user
+            Intent intent = new Intent(this, DashboardActivity.class);
+            intent.putExtra("USER_NAME", user.getNama());
+            intent.putExtra("USER_EMAIL", user.getEmail());
+            intent.putExtra("USER_NPM", user.getNpm());
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "Email atau password salah", Toast.LENGTH_SHORT).show();
+        }
     }
 }
