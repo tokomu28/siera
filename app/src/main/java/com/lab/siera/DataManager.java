@@ -1,29 +1,13 @@
 package com.lab.siera;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 public class DataManager {
     private static DataManager instance;
-    private ArrayList<User> users = new ArrayList<>();
-    private static final String PREF_NAME = "UserData";
-    private static final String KEY_USERS = "users_list";
-    private Context context;
-    private Gson gson = new Gson();
+    private DatabaseHelper dbHelper;
 
     private DataManager(Context context) {
-        this.context = context;
-        loadUsersFromPrefs();
-
-        // Jika tidak ada data, tambahkan admin default
-        if (users.isEmpty()) {
-            users.add(new User("Admin", "admin@siera.com", "12345678", "admin123"));
-            saveUsersToPrefs();
-        }
+        dbHelper = new DatabaseHelper(context);
     }
 
     public static synchronized DataManager getInstance(Context context) {
@@ -33,91 +17,40 @@ public class DataManager {
         return instance;
     }
 
-    // Register user baru
+    // Method untuk registrasi (mahasiswa)
     public boolean registerUser(String nama, String email, String npm, String password) {
         // Cek apakah email sudah terdaftar
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
-                return false; // Email sudah terdaftar
-            }
+        if (dbHelper.isEmailExists(email)) {
+            return false;
         }
 
-        users.add(new User(nama, email, npm, password));
-        saveUsersToPrefs(); // Simpan ke SharedPreferences
-        return true;
-    }
-
-    // Validasi login
-    public boolean validateLogin(String email, String password) {
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email) &&
-                    user.getPassword().equals(password)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Get user by email
-    public User getUserByEmail(String email) {
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    // Simpan data ke SharedPreferences
-    private void saveUsersToPrefs() {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        String json = gson.toJson(users);
-        editor.putString(KEY_USERS, json);
-        editor.apply();
-    }
-
-    // Load data dari SharedPreferences
-    private void loadUsersFromPrefs() {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_USERS, "");
-
-        if (!json.isEmpty()) {
-            Type type = new TypeToken<ArrayList<User>>() {}.getType();
-            users = gson.fromJson(json, type);
+        // Cek apakah npm sudah terdaftar
+        if (dbHelper.isNpmExists(npm)) {
+            return false;
         }
 
-        if (users == null) {
-            users = new ArrayList<>();
-        }
+        // Registrasi user baru (mahasiswa)
+        return dbHelper.registerUser(nama, email, npm, password);
     }
 
-    // Hapus semua data (untuk testing/debug)
-    public void clearAllData() {
-        users.clear();
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.clear();
-        editor.apply();
+    // Method untuk login dengan email atau npm
+    public DatabaseHelper.LoginResult loginUser(String identifier, String password) {
+        return dbHelper.loginUser(identifier, password);
     }
 
-    // Model User
-    public static class User {
-        private String nama;
-        private String email;
-        private String npm;
-        private String password;
-
-        public User(String nama, String email, String npm, String password) {
-            this.nama = nama;
-            this.email = email;
-            this.npm = npm;
-            this.password = password;
+    // Method untuk membuat admin (opsional, untuk admin management)
+    public boolean createAdminUser(String nama, String email, String npm, String password) {
+        // Cek apakah email sudah terdaftar
+        if (dbHelper.isEmailExists(email)) {
+            return false;
         }
 
-        public String getNama() { return nama; }
-        public String getEmail() { return email; }
-        public String getNpm() { return npm; }
-        public String getPassword() { return password; }
+        // Cek apakah npm sudah terdaftar
+        if (dbHelper.isNpmExists(npm)) {
+            return false;
+        }
+
+        // Buat user admin
+        return dbHelper.createAdminUser(nama, email, npm, password);
     }
 }

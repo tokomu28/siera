@@ -22,7 +22,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Inisialisasi DataManager dengan context
+        // Inisialisasi DataManager
         dataManager = DataManager.getInstance(this);
 
         edtNama = findViewById(R.id.edtNama);
@@ -63,6 +63,10 @@ public class RegisterActivity extends AppCompatActivity {
             edtNpm.setError("NPM minimal 8 karakter");
             return false;
         }
+        if (!npm.matches("\\d+")) {
+            edtNpm.setError("NPM harus berupa angka");
+            return false;
+        }
         if (password.isEmpty() || password.length() < 6) {
             edtPassword.setError("Password minimal 6 karakter");
             return false;
@@ -87,11 +91,10 @@ public class RegisterActivity extends AppCompatActivity {
 
             // Kembali ke login
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("EMAIL", email);
             startActivity(intent);
             finish();
         } else {
-            Toast.makeText(this, "Email sudah terdaftar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Email atau NPM sudah terdaftar", Toast.LENGTH_SHORT).show();
         }
     }
 }
