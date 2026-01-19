@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_dialog">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Form Kegiatan"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#1F3C88"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"/>
+
+    <!-- Nama Kegiatan -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nama Kegiatan :"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/etNamaKegiatan"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Masukkan nama kegiatan"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Jenis Kegiatan -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Jenis Kegiatan :"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerJenis"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_edittext"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Penyelenggara -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Penyelenggara :"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/etPenyelenggara"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Masukkan penyelenggara"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Tanggal Kegiatan -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tanggal Kegiatan :"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_edittext"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:layout_marginBottom="24dp">
+
+        <EditText
+            android:id="@+id/etHari"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Hari"
+            android:textSize="14sp"
+            android:inputType="number"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="/"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginHorizontal="8dp"/>
+
+        <EditText
+            android:id="@+id/etBulan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Bulan"
+            android:textSize="14sp"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="/"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginHorizontal="8dp"/>
+
+        <EditText
+            android:id="@+id/etTahun"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Tahun"
+            android:textSize="14sp"
+            android:inputType="number"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnBatal"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Batal"
+            android:textColor="#666666"
+            android:backgroundTint="#E0E0E0"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnSimpan"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Simpan"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#1F3C88"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>

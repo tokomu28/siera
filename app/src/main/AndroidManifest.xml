@@ -10,9 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Siera">
         <activity
-            android:name=".DashboardAdminActivity"
+            android:name=".admin.ManajemenKegiatanActivity"
             android:exported="false" />
-        <!-- SPLASH (HALAMAN PERTAMA) -->
+        <activity
+            android:name=".admin.DashboardAdminActivity"
+            android:exported="false" /> <!-- SPLASH (HALAMAN PERTAMA) -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"

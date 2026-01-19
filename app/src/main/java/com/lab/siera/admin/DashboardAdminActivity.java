@@ -1,4 +1,4 @@
-package com.lab.siera;
+package com.lab.siera.admin;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,12 +7,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.lab.siera.MainActivity;
+import com.lab.siera.R;
 
 public class DashboardAdminActivity extends AppCompatActivity {
 
     private TextView tvTotalUsers, tvTotalPosts, tvActiveActivities, tvTotalRewards;
     private ImageView btnLogout, btnProfile;
+    private BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +25,7 @@ public class DashboardAdminActivity extends AppCompatActivity {
 
         initViews();
         setupClickListeners();
+        setupBottomNavigation();
         loadDashboardData();
     }
 
@@ -34,6 +39,38 @@ public class DashboardAdminActivity extends AppCompatActivity {
         // Action Buttons
         btnLogout = findViewById(R.id.btnLogout);
         btnProfile = findViewById(R.id.btnProfile);
+
+        // Bottom Navigation
+        bottomNav = findViewById(R.id.bottomNavBar);
+    }
+
+    private void setupBottomNavigation() {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_admin_home) {
+                // Already on home
+                return true;
+            } else if (itemId == R.id.nav_admin_users) {
+                // Navigate to Manajemen Kegiatan Activity
+                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (itemId == R.id.nav_admin_activities) {
+                // Navigate to Activities Management (gunakan ManajemenKegiatanActivity untuk sementara)
+                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (itemId == R.id.nav_admin_profile) {
+                // Navigate to More/Settings
+                Toast.makeText(this, "Menu More akan segera tersedia", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return false;
+        });
+
+        // Set home sebagai selected
+        bottomNav.setSelectedItemId(R.id.nav_admin_home);
     }
 
     private void setupClickListeners() {
@@ -59,8 +96,9 @@ public class DashboardAdminActivity extends AppCompatActivity {
 
         if (cvUsers != null) {
             cvUsers.setOnClickListener(v -> {
-                // Intent untuk UserListActivity
-                Toast.makeText(this, "Lihat daftar user", Toast.LENGTH_SHORT).show();
+                // Intent untuk ManajemenKegiatanActivity
+                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+                startActivity(intent);
             });
         }
 
@@ -73,8 +111,9 @@ public class DashboardAdminActivity extends AppCompatActivity {
 
         if (cvActivities != null) {
             cvActivities.setOnClickListener(v -> {
-                // Intent untuk ActivityListActivity
-                Toast.makeText(this, "Lihat daftar kegiatan", Toast.LENGTH_SHORT).show();
+                // Intent untuk ManajemenKegiatanActivity
+                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+                startActivity(intent);
             });
         }
 
@@ -93,6 +132,15 @@ public class DashboardAdminActivity extends AppCompatActivity {
         tvTotalPosts.setText("40");
         tvActiveActivities.setText("31");
         tvTotalRewards.setText("40");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reset bottom nav selection to home when returning to this activity
+        if (bottomNav != null) {
+            bottomNav.setSelectedItemId(R.id.nav_admin_home);
+        }
     }
 
     @Override
