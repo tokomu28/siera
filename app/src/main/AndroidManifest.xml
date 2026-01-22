@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Siera">
         <activity
+            android:name=".admin.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.UserActivity"
+            android:exported="false" />
+        <activity
             android:name=".admin.ManajemenKegiatanActivity"
             android:exported="false" />
         <activity

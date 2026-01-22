@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#E8EEFF"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="16dp"
+    android:layout_marginBottom="8dp">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Nama Kegiatan"
+        android:textColor="#1F3C88"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Jenis"
+        android:textColor="#1F3C88"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Penyelenggara"
+        android:textColor="#1F3C88"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Tanggal"
+        android:textColor="#1F3C88"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Aksi"
+        android:textColor="#1F3C88"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+</LinearLayout>

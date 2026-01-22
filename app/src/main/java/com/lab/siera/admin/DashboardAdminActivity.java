@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lab.siera.MainActivity;
 import com.lab.siera.R;
+import com.lab.siera.admin.ProfileActivity; // Pastikan import ini benar
 
 public class DashboardAdminActivity extends AppCompatActivity {
 
@@ -26,7 +27,7 @@ public class DashboardAdminActivity extends AppCompatActivity {
         initViews();
         setupClickListeners();
         setupBottomNavigation();
-        loadDashboardData();
+        //loadDashboardData();
     }
 
     private void initViews() {
@@ -48,25 +49,33 @@ public class DashboardAdminActivity extends AppCompatActivity {
         bottomNav.setOnNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
+            // Jika sudah di halaman yang dituju, tidak perlu intent
             if (itemId == R.id.nav_admin_home) {
-                // Already on home
-                return true;
-            } else if (itemId == R.id.nav_admin_users) {
-                // Navigate to Manajemen Kegiatan Activity
-                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.nav_admin_activities) {
-                // Navigate to Activities Management (gunakan ManajemenKegiatanActivity untuk sementara)
-                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.nav_admin_profile) {
-                // Navigate to More/Settings
-                Toast.makeText(this, "Menu More akan segera tersedia", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            return false;
+
+            try {
+                Intent intent = null;
+
+                if (itemId == R.id.nav_admin_activities) {
+                    intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+                } else if (itemId == R.id.nav_admin_users) {
+                    intent = new Intent(DashboardAdminActivity.this, UserActivity.class);
+                } else if (itemId == R.id.nav_admin_profile) {
+                    intent = new Intent(DashboardAdminActivity.this, ProfileActivity.class);
+                }
+
+                if (intent != null) {
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    finish(); // TAMBAHKAN INI!
+                }
+
+            } catch (Exception e) {
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            return true;
         });
 
         // Set home sebagai selected
@@ -79,13 +88,14 @@ public class DashboardAdminActivity extends AppCompatActivity {
             // Clear session/logout logic here
             Intent intent = new Intent(DashboardAdminActivity.this, MainActivity.class);
             startActivity(intent);
-            finish();
+            finishAffinity(); // Clear all activities
         });
 
-        // Profile button
+        // Profile button di header
         btnProfile.setOnClickListener(v -> {
             // Navigate to profile
-            Toast.makeText(this, "Fitur profil akan segera tersedia", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(DashboardAdminActivity.this, ProfileActivity.class);
+            startActivity(intent);
         });
 
         // Stats cards click listeners (jika ada CardView di layout)
@@ -94,38 +104,36 @@ public class DashboardAdminActivity extends AppCompatActivity {
         View cvActivities = findViewById(R.id.cvActivities);
         View cvRewards = findViewById(R.id.cvRewards);
 
-        if (cvUsers != null) {
-            cvUsers.setOnClickListener(v -> {
-                // Intent untuk ManajemenKegiatanActivity
-                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
-                startActivity(intent);
-            });
-        }
+//        if (cvUsers != null) {
+//            cvUsers.setOnClickListener(v -> {
+//                // Intent untuk UserActivity
+//                Intent intent = new Intent(DashboardAdminActivity.this, UserActivity.class);
+//                startActivity(intent);
+//            });
+//        }
+//
+//        if (cvPosts != null) {
+//            cvPosts.setOnClickListener(v -> {
+//                Toast.makeText(this, "Fitur post akan segera tersedia", Toast.LENGTH_SHORT).show();
+//            });
+//        }
+//
+//        if (cvActivities != null) {
+//            cvActivities.setOnClickListener(v -> {
+//                // Intent untuk ManajemenKegiatanActivity
+//                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+//                startActivity(intent);
+//            });
+//        }
+//
+//        if (cvRewards != null) {
+//            cvRewards.setOnClickListener(v -> {
+//                Toast.makeText(this, "Fitur reward akan segera tersedia", Toast.LENGTH_SHORT).show();
+//            });
+//        }
+//    }
 
-        if (cvPosts != null) {
-            cvPosts.setOnClickListener(v -> {
-                // Intent untuk PostListActivity
-                Toast.makeText(this, "Lihat daftar post", Toast.LENGTH_SHORT).show();
-            });
-        }
-
-        if (cvActivities != null) {
-            cvActivities.setOnClickListener(v -> {
-                // Intent untuk ManajemenKegiatanActivity
-                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        if (cvRewards != null) {
-            cvRewards.setOnClickListener(v -> {
-                // Intent untuk RewardListActivity
-                Toast.makeText(this, "Lihat daftar reward", Toast.LENGTH_SHORT).show();
-            });
-        }
-    }
-
-    private void loadDashboardData() {
+    //private void loadDashboardData() {
         // In a real app, load data from database/API
         // For now, setting dummy data
         tvTotalUsers.setText("100");
@@ -145,7 +153,12 @@ public class DashboardAdminActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Show confirmation dialog or exit
-        super.onBackPressed();
+        // Exit app confirmation
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Keluar")
+                .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
+                .setPositiveButton("Ya", (dialog, which) -> finishAffinity())
+                .setNegativeButton("Tidak", null)
+                .show();
     }
 }

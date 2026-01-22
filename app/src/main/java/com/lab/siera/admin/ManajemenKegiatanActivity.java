@@ -3,19 +3,29 @@ package com.lab.siera.admin;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.lab.siera.DataManager;
+import com.lab.siera.DatabaseHelper;
 import com.lab.siera.R;
 
 import java.util.ArrayList;
@@ -26,72 +36,271 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
 
     private LinearLayout containerKegiatan;
     private Button btnTambahKegiatan;
+    private EditText etSearch;
     private List<Kegiatan> kegiatanList = new ArrayList<>();
-    private int editingPosition = -1; // -1 means adding new, >=0 means editing
+    private int editingPosition = -1;
+    private DataManager dataManager;
+
+    // Model class Kegiatan
+    class Kegiatan {
+        private int id;
+        private String nama;
+        private String jenis;
+        private String penyelenggara;
+        private String tanggal;
+        private long timestamp;
+
+        public Kegiatan(int id, String nama, String jenis, String penyelenggara, String tanggal, long timestamp) {
+            this.id = id;
+            this.nama = nama;
+            this.jenis = jenis;
+            this.penyelenggara = penyelenggara;
+            this.tanggal = tanggal;
+            this.timestamp = timestamp;
+        }
+
+        public int getId() { return id; }
+        public String getNama() { return nama; }
+        public String getJenis() { return jenis; }
+        public String getPenyelenggara() { return penyelenggara; }
+        public String getTanggal() { return tanggal; }
+        public long getTimestamp() { return timestamp; }
+
+        public void setNama(String nama) { this.nama = nama; }
+        public void setJenis(String jenis) { this.jenis = jenis; }
+        public void setPenyelenggara(String penyelenggara) { this.penyelenggara = penyelenggara; }
+        public void setTanggal(String tanggal) { this.tanggal = tanggal; }
+        public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manajemen_kegiatan);
 
+        // Initialize DataManager
+        dataManager = DataManager.getInstance(this);
+
         // Initialize views
         containerKegiatan = findViewById(R.id.containerKegiatan);
         btnTambahKegiatan = findViewById(R.id.btnTambahKegiatan);
+        etSearch = findViewById(R.id.etSearch);
 
         // Setup bottom navigation
         setupBottomNavigation();
 
+        // Setup click listeners for header buttons
+        findViewById(R.id.btnProfile).setOnClickListener(v -> {
+            Intent intent = new Intent(ManajemenKegiatanActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.btnLogout).setOnClickListener(v -> {
+            Intent intent = new Intent(ManajemenKegiatanActivity.this, com.lab.siera.MainActivity.class);
+            startActivity(intent);
+            finishAffinity();
+        });
+
         // Back button
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        // Add sample data
-        kegiatanList.add(new Kegiatan("Workshop Android Development", "Workshop", "FTS", "15 Jan 2025"));
-        kegiatanList.add(new Kegiatan("Seminar Revolusi", "Seminar", "FTS", "25 Jan 2025"));
+        // Setup search functionality
+        setupSearch();
 
-        // Setup click listeners for existing items
-        setupItemClickListeners();
+        // Load data from database
+        loadKegiatanFromDatabase();
 
         // Add button click listener
         btnTambahKegiatan.setOnClickListener(v -> showTambahKegiatanDialog());
     }
 
-    private void setupItemClickListeners() {
-        // Item 1
-        findViewById(R.id.btnEdit1).setOnClickListener(v -> showEditKegiatanDialog(0));
-        findViewById(R.id.btnDelete1).setOnClickListener(v -> showDeleteDialog(0));
+    private void setupSearch() {
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        // Item 2
-        findViewById(R.id.btnEdit2).setOnClickListener(v -> showEditKegiatanDialog(1));
-        findViewById(R.id.btnDelete2).setOnClickListener(v -> showDeleteDialog(1));
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchKegiatan(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
-    private void setupBottomNavigation() {
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavBar);
-        bottomNav.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
+    private void loadKegiatanFromDatabase() {
+        kegiatanList.clear();
+        Cursor cursor = dataManager.getAllKegiatan();
 
-            if (itemId == R.id.nav_admin_home) {
-                // Navigate back to Dashboard
-                finish();
-                return true;
-            } else if (itemId == R.id.nav_admin_users) {
-                // Already in Manajemen Kegiatan (this activity)
-                // You might want to create a separate UserManagementActivity
-                Toast.makeText(this, "Manajemen User akan segera tersedia", Toast.LENGTH_SHORT).show();
-                return true;
-            } else if (itemId == R.id.nav_admin_activities) {
-                // Already in activities management
-                return true;
-            } else if (itemId == R.id.nav_admin_profile) {
-                // Navigate to more/settings
-                Toast.makeText(this, "Menu More akan segera tersedia", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            return false;
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_ID));
+                String nama = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_NAMA));
+                String jenis = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_JENIS));
+                String penyelenggara = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_PENYELENGGARA));
+                String tanggal = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL));
+                long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL_TIMESTAMP));
+
+                kegiatanList.add(new Kegiatan(id, nama, jenis, penyelenggara, tanggal, timestamp));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        // Tampilkan data di UI
+        displayKegiatan();
+    }
+
+    private void searchKegiatan(String keyword) {
+        if (keyword.isEmpty()) {
+            loadKegiatanFromDatabase();
+            return;
+        }
+
+        kegiatanList.clear();
+        Cursor cursor = dataManager.searchKegiatan(keyword);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_ID));
+                String nama = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_NAMA));
+                String jenis = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_JENIS));
+                String penyelenggara = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_PENYELENGGARA));
+                String tanggal = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL));
+                long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL_TIMESTAMP));
+
+                kegiatanList.add(new Kegiatan(id, nama, jenis, penyelenggara, tanggal, timestamp));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        displayKegiatan();
+    }
+
+    private void displayKegiatan() {
+        // Kosongkan container terlebih dahulu
+        containerKegiatan.removeAllViews();
+
+        // Tambahkan header
+        View headerView = getLayoutInflater().inflate(R.layout.item_kegiatan_header, containerKegiatan, false);
+        containerKegiatan.addView(headerView);
+
+        // Tambahkan setiap kegiatan ke UI
+        for (int i = 0; i < kegiatanList.size(); i++) {
+            addKegiatanItemToUI(kegiatanList.get(i), i);
+        }
+
+        // Jika tidak ada data, tampilkan pesan
+        if (kegiatanList.isEmpty()) {
+            TextView tvEmpty = new TextView(this);
+            tvEmpty.setText("Tidak ada kegiatan");
+            tvEmpty.setTextColor(Color.GRAY);
+            tvEmpty.setTextSize(16);
+            tvEmpty.setGravity(Gravity.CENTER);
+            tvEmpty.setPadding(0, 50, 0, 0);
+            containerKegiatan.addView(tvEmpty);
+        }
+    }
+
+    private void addKegiatanItemToUI(Kegiatan kegiatan, int position) {
+        // Buat layout untuk item kegiatan
+        LinearLayout itemLayout = new LinearLayout(this);
+        itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+        itemLayout.setBackgroundResource(R.drawable.bg_item_kegiatan);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(0, 0, 0, 8);
+        itemLayout.setLayoutParams(layoutParams);
+        itemLayout.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16));
+
+        // Nama Kegiatan
+        TextView tvNama = new TextView(this);
+        LinearLayout.LayoutParams paramsNama = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
+        tvNama.setLayoutParams(paramsNama);
+        tvNama.setText(kegiatan.getNama());
+        tvNama.setTextColor(Color.parseColor("#333333"));
+        tvNama.setTextSize(14);
+
+        // Jenis
+        TextView tvJenis = new TextView(this);
+        LinearLayout.LayoutParams paramsJenis = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        tvJenis.setLayoutParams(paramsJenis);
+        tvJenis.setText(kegiatan.getJenis());
+        tvJenis.setTextColor(Color.parseColor("#666666"));
+        tvJenis.setTextSize(14);
+
+        // Penyelenggara
+        TextView tvPenyelenggara = new TextView(this);
+        LinearLayout.LayoutParams paramsPenyelenggara = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        tvPenyelenggara.setLayoutParams(paramsPenyelenggara);
+        tvPenyelenggara.setText(kegiatan.getPenyelenggara());
+        tvPenyelenggara.setTextColor(Color.parseColor("#666666"));
+        tvPenyelenggara.setTextSize(14);
+
+        // Tanggal
+        TextView tvTanggal = new TextView(this);
+        LinearLayout.LayoutParams paramsTanggal = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        tvTanggal.setLayoutParams(paramsTanggal);
+        tvTanggal.setText(kegiatan.getTanggal());
+        tvTanggal.setTextColor(Color.parseColor("#666666"));
+        tvTanggal.setTextSize(14);
+
+        // Container untuk aksi (edit dan delete)
+        LinearLayout containerAksi = new LinearLayout(this);
+        LinearLayout.LayoutParams paramsAksi = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        containerAksi.setLayoutParams(paramsAksi);
+        containerAksi.setOrientation(LinearLayout.HORIZONTAL);
+        containerAksi.setGravity(Gravity.CENTER);
+
+        // Tombol Edit dengan ImageView
+        ImageView btnEdit = new ImageView(this);
+        LinearLayout.LayoutParams editParams = new LinearLayout.LayoutParams(
+                dpToPx(30),
+                dpToPx(30)
+        );
+        editParams.setMargins(0, 0, dpToPx(8), 0);
+        btnEdit.setLayoutParams(editParams);
+        btnEdit.setImageResource(R.drawable.ic_edit);
+        btnEdit.setTag(position);
+        btnEdit.setOnClickListener(v -> {
+            int pos = (int) v.getTag();
+            showEditKegiatanDialog(pos);
         });
 
-        // Set activities as selected
-        bottomNav.setSelectedItemId(R.id.nav_admin_activities);
+        // Tombol Delete dengan ImageView
+        ImageView btnDelete = new ImageView(this);
+        LinearLayout.LayoutParams deleteParams = new LinearLayout.LayoutParams(
+                dpToPx(30),
+                dpToPx(30)
+        );
+        btnDelete.setLayoutParams(deleteParams);
+        btnDelete.setImageResource(R.drawable.ic_delete);
+        btnDelete.setTag(position);
+        btnDelete.setOnClickListener(v -> {
+            int pos = (int) v.getTag();
+            showDeleteDialog(pos);
+        });
+
+        // Tambahkan tombol ke container aksi
+        containerAksi.addView(btnEdit);
+        containerAksi.addView(btnDelete);
+
+        // Tambahkan semua view ke item layout
+        itemLayout.addView(tvNama);
+        itemLayout.addView(tvJenis);
+        itemLayout.addView(tvPenyelenggara);
+        itemLayout.addView(tvTanggal);
+        itemLayout.addView(containerAksi);
+
+        // Tambahkan item layout ke container utama
+        containerKegiatan.addView(itemLayout);
+    }
+
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
     }
 
     private void showTambahKegiatanDialog() {
@@ -100,8 +309,10 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
     }
 
     private void showEditKegiatanDialog(int position) {
-        editingPosition = position;
-        showKegiatanDialog(kegiatanList.get(position));
+        if (position >= 0 && position < kegiatanList.size()) {
+            editingPosition = position;
+            showKegiatanDialog(kegiatanList.get(position));
+        }
     }
 
     private void showKegiatanDialog(Kegiatan kegiatan) {
@@ -175,18 +386,50 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
 
             String tanggal = hari + " " + bulan + " " + tahun;
 
+            // Convert tanggal ke timestamp
+            Calendar calendar = Calendar.getInstance();
+            String[] bulanArray = {"Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+                    "Jul", "Agu", "Sep", "Okt", "Nov", "Des"};
+
+            int day = Integer.parseInt(hari);
+            int year = Integer.parseInt(tahun);
+            int month = 0;
+            for (int i = 0; i < bulanArray.length; i++) {
+                if (bulan.equals(bulanArray[i])) {
+                    month = i;
+                    break;
+                }
+            }
+
+            calendar.set(year, month, day, 0, 0, 0);
+            long timestamp = calendar.getTimeInMillis();
+
             if (editingPosition == -1) {
-                // Add new kegiatan
-                Kegiatan newKegiatan = new Kegiatan(nama, jenis, penyelenggara, tanggal);
-                kegiatanList.add(newKegiatan);
-                addKegiatanToUI(newKegiatan, kegiatanList.size() - 1);
-                Toast.makeText(this, "Kegiatan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                // Add new kegiatan to database
+                boolean success = dataManager.tambahKegiatan(nama, jenis, penyelenggara, tanggal, timestamp);
+
+                if (success) {
+                    // Reload data dari database
+                    loadKegiatanFromDatabase();
+                    Toast.makeText(this, "Kegiatan berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Gagal menambahkan kegiatan", Toast.LENGTH_SHORT).show();
+                }
             } else {
-                // Update existing kegiatan
-                Kegiatan updatedKegiatan = new Kegiatan(nama, jenis, penyelenggara, tanggal);
-                kegiatanList.set(editingPosition, updatedKegiatan);
-                updateKegiatanInUI(updatedKegiatan, editingPosition);
-                Toast.makeText(this, "Kegiatan berhasil diupdate", Toast.LENGTH_SHORT).show();
+                // Update existing kegiatan in database
+                Kegiatan kegiatanToUpdate = kegiatanList.get(editingPosition);
+                boolean success = dataManager.updateKegiatan(
+                        kegiatanToUpdate.getId(),
+                        nama, jenis, penyelenggara, tanggal, timestamp
+                );
+
+                if (success) {
+                    // Reload data dari database
+                    loadKegiatanFromDatabase();
+                    Toast.makeText(this, "Kegiatan berhasil diupdate", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Gagal mengupdate kegiatan", Toast.LENGTH_SHORT).show();
+                }
             }
 
             dialog.dismiss();
@@ -215,83 +458,77 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
     }
 
     private void showDeleteDialog(int position) {
+        if (position < 0 || position >= kegiatanList.size()) return;
+
+        Kegiatan kegiatan = kegiatanList.get(position);
+
         new AlertDialog.Builder(this)
                 .setTitle("Hapus Kegiatan")
-                .setMessage("Apakah Anda yakin ingin menghapus kegiatan ini?")
+                .setMessage("Apakah Anda yakin ingin menghapus kegiatan '" + kegiatan.getNama() + "'?")
                 .setPositiveButton("Ya", (dialog, which) -> {
-                    kegiatanList.remove(position);
-                    removeKegiatanFromUI(position);
-                    Toast.makeText(this, "Kegiatan berhasil dihapus", Toast.LENGTH_SHORT).show();
+                    // Delete from database
+                    boolean success = dataManager.deleteKegiatan(kegiatan.getId());
+
+                    if (success) {
+                        // Reload data dari database
+                        loadKegiatanFromDatabase();
+                        Toast.makeText(this, "Kegiatan berhasil dihapus", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Gagal menghapus kegiatan", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .setNegativeButton("Tidak", null)
                 .show();
     }
 
-    private void addKegiatanToUI(Kegiatan kegiatan, int position) {
-        // In a real app, you would use RecyclerView
-        // For now, just update the existing views or show toast
-        Toast.makeText(this, "Added: " + kegiatan.getNama(), Toast.LENGTH_SHORT).show();
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavBar);
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            // Jika sudah di halaman yang dituju, tidak perlu intent
+            if (itemId == R.id.nav_admin_activities) {
+                return true;
+            }
+
+            try {
+                Intent intent = null;
+
+                if (itemId == R.id.nav_admin_home) {
+                    intent = new Intent(ManajemenKegiatanActivity.this, DashboardAdminActivity.class);
+                } else if (itemId == R.id.nav_admin_users) {
+                    intent = new Intent(ManajemenKegiatanActivity.this, UserActivity.class);
+                } else if (itemId == R.id.nav_admin_profile) {
+                    intent = new Intent(ManajemenKegiatanActivity.this, ProfileActivity.class);
+                }
+
+                if (intent != null) {
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                    finish();
+                }
+
+            } catch (Exception e) {
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            return true;
+        });
+
+        // Set activities as selected
+        bottomNav.setSelectedItemId(R.id.nav_admin_activities);
     }
 
-    private void updateKegiatanInUI(Kegiatan kegiatan, int position) {
-        // Update the specific item based on position
-        switch (position) {
-            case 0:
-                ((TextView) findViewById(R.id.tvNamaKegiatan1)).setText(kegiatan.getNama());
-                ((TextView) findViewById(R.id.tvJenis1)).setText(kegiatan.getJenis());
-                ((TextView) findViewById(R.id.tvPenyelenggara1)).setText(kegiatan.getPenyelenggara());
-                ((TextView) findViewById(R.id.tvTanggal1)).setText(kegiatan.getTanggal());
-                break;
-            case 1:
-                ((TextView) findViewById(R.id.tvNamaKegiatan2)).setText(kegiatan.getNama());
-                ((TextView) findViewById(R.id.tvJenis2)).setText(kegiatan.getJenis());
-                ((TextView) findViewById(R.id.tvPenyelenggara2)).setText(kegiatan.getPenyelenggara());
-                ((TextView) findViewById(R.id.tvTanggal2)).setText(kegiatan.getTanggal());
-                break;
-        }
-    }
-
-    private void removeKegiatanFromUI(int position) {
-        // Remove the specific item based on position
-        switch (position) {
-            case 0:
-                // In a real app, you would remove from RecyclerView
-                Toast.makeText(this, "Item 1 dihapus", Toast.LENGTH_SHORT).show();
-                break;
-            case 1:
-                Toast.makeText(this, "Item 2 dihapus", Toast.LENGTH_SHORT).show();
-                break;
-        }
-    }
-
-    // Model class for Kegiatan
-    class Kegiatan {
-        private String nama;
-        private String jenis;
-        private String penyelenggara;
-        private String tanggal;
-
-        public Kegiatan(String nama, String jenis, String penyelenggara, String tanggal) {
-            this.nama = nama;
-            this.jenis = jenis;
-            this.penyelenggara = penyelenggara;
-            this.tanggal = tanggal;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Update bottom nav selection
+        if (findViewById(R.id.bottomNavBar) != null) {
+            BottomNavigationView bottomNav = findViewById(R.id.bottomNavBar);
+            bottomNav.setSelectedItemId(R.id.nav_admin_activities);
         }
 
-        public String getNama() {
-            return nama;
-        }
-
-        public String getJenis() {
-            return jenis;
-        }
-
-        public String getPenyelenggara() {
-            return penyelenggara;
-        }
-
-        public String getTanggal() {
-            return tanggal;
-        }
+        // Reload data jika perlu
+        loadKegiatanFromDatabase();
     }
 }

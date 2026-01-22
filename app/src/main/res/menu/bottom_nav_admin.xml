@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Home/Dashboard -->
     <item
         android:id="@+id/nav_admin_home"
         android:icon="@drawable/ic_home"
         android:title="Home" />
 
-    <!-- Kegiatan/Activities -->
     <item
         android:id="@+id/nav_admin_activities"
-        android:icon="@drawable/ic_users_nav"
+        android:icon="@drawable/ic_activities"
         android:title="Kegiatan" />
 
-    <!-- User -->
     <item
         android:id="@+id/nav_admin_users"
-        android:icon="@drawable/ic_more"
-        android:title="User" />
+        android:icon="@drawable/ic_users"
+        android:title="Pendaftaran" />
 
-    <!-- Profile -->
     <item
         android:id="@+id/nav_admin_profile"
         android:icon="@drawable/ic_profile"
-        android:title="Profile" />
-
+        android:title="Profil" />
 </menu>

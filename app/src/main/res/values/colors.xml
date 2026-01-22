@@ -2,4 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Tambahkan warna untuk jenis kegiatan -->
+    <color name="color_research">#3B6EF5</color>
+    <color name="color_internship">#7B61FF</color>
+    <color name="color_workshop">#FF6B35</color>
+    <color name="color_seminar">#4CAF50</color>
+    <color name="color_default">#666666</color>
+    <color name="color_primary">#1F3C88</color>
+    <color name="color_secondary">#E8EEFF</color>
 </resources>
