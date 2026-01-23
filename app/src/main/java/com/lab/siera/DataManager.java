@@ -2,6 +2,7 @@ package com.lab.siera;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 public class DataManager {
@@ -65,11 +66,22 @@ public class DataManager {
         return dbHelper.createAdminUser(nama, email, npm, password);
     }
 
-    // ========== METHODS UNTUK KEGIATAN ==========
-    public boolean tambahKegiatan(String nama, String jenis, String penyelenggara, String tanggal, long timestamp) {
-        return dbHelper.tambahKegiatan(nama, jenis, penyelenggara, tanggal, timestamp);
+    // ========== METHODS UNTUK KEGIATAN (DIPERBARUI) ==========
+    public boolean tambahKegiatan(String nama, String jenis, String penyelenggara,
+                                  String deskripsi, String tanggal, String waktu,
+                                  String lokasi, long timestamp, String fotoBase64) {
+        return dbHelper.tambahKegiatan(nama, jenis, penyelenggara, deskripsi,
+                tanggal, waktu, lokasi, timestamp, fotoBase64);
     }
 
+    public boolean updateKegiatan(int id, String nama, String jenis, String penyelenggara,
+                                  String deskripsi, String tanggal, String waktu,
+                                  String lokasi, long timestamp, String fotoBase64) {
+        return dbHelper.updateKegiatan(id, nama, jenis, penyelenggara, deskripsi,
+                tanggal, waktu, lokasi, timestamp, fotoBase64);
+    }
+
+    // ========== METHODS LAINNYA (TETAP SAMA) ==========
     public Cursor getAllKegiatan() {
         return dbHelper.getAllKegiatan();
     }
@@ -78,16 +90,26 @@ public class DataManager {
         return dbHelper.getKegiatanById(id);
     }
 
-    public boolean updateKegiatan(int id, String nama, String jenis, String penyelenggara, String tanggal, long timestamp) {
-        return dbHelper.updateKegiatan(id, nama, jenis, penyelenggara, tanggal, timestamp);
-    }
-
     public boolean deleteKegiatan(int id) {
         return dbHelper.deleteKegiatan(id);
     }
 
     public Cursor searchKegiatan(String keyword) {
         return dbHelper.searchKegiatan(keyword);
+    }
+
+    // ========== METHOD BARU UNTUK DASHBOARD ==========
+    public Cursor getLatestKegiatan(int limit) {
+        return dbHelper.getLatestKegiatan(limit);
+    }
+
+    // ========== METHOD HELPER UNTUK FOTO ==========
+    public static String bitmapToBase64(Bitmap bitmap) {
+        return DatabaseHelper.bitmapToBase64(bitmap);
+    }
+
+    public static Bitmap base64ToBitmap(String base64String) {
+        return DatabaseHelper.base64ToBitmap(base64String);
     }
 
     // ========== METHOD DEBUG ==========

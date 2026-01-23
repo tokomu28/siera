@@ -28,9 +28,11 @@ import com.lab.siera.DataManager;
 import com.lab.siera.DatabaseHelper;
 import com.lab.siera.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class ManajemenKegiatanActivity extends AppCompatActivity {
 
@@ -41,36 +43,56 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
     private int editingPosition = -1;
     private DataManager dataManager;
 
-    // Model class Kegiatan
+    // Model class Kegiatan (diperbarui dengan semua field)
     class Kegiatan {
         private int id;
         private String nama;
         private String jenis;
         private String penyelenggara;
+        private String deskripsi;
         private String tanggal;
+        private String waktu;
+        private String lokasi;
         private long timestamp;
+        private String fotoBase64;
 
-        public Kegiatan(int id, String nama, String jenis, String penyelenggara, String tanggal, long timestamp) {
+        public Kegiatan(int id, String nama, String jenis, String penyelenggara,
+                        String deskripsi, String tanggal, String waktu,
+                        String lokasi, long timestamp, String fotoBase64) {
             this.id = id;
             this.nama = nama;
             this.jenis = jenis;
             this.penyelenggara = penyelenggara;
+            this.deskripsi = deskripsi;
             this.tanggal = tanggal;
+            this.waktu = waktu;
+            this.lokasi = lokasi;
             this.timestamp = timestamp;
+            this.fotoBase64 = fotoBase64;
         }
 
+        // Getters
         public int getId() { return id; }
         public String getNama() { return nama; }
         public String getJenis() { return jenis; }
         public String getPenyelenggara() { return penyelenggara; }
+        public String getDeskripsi() { return deskripsi; }
         public String getTanggal() { return tanggal; }
+        public String getWaktu() { return waktu; }
+        public String getLokasi() { return lokasi; }
         public long getTimestamp() { return timestamp; }
+        public String getFotoBase64() { return fotoBase64; }
 
+        // Setters
         public void setNama(String nama) { this.nama = nama; }
         public void setJenis(String jenis) { this.jenis = jenis; }
         public void setPenyelenggara(String penyelenggara) { this.penyelenggara = penyelenggara; }
+        public void setDeskripsi(String deskripsi) { this.deskripsi = deskripsi; }
         public void setTanggal(String tanggal) { this.tanggal = tanggal; }
+        public void setWaktu(String waktu) { this.waktu = waktu; }
+        public void setLokasi(String lokasi) { this.lokasi = lokasi; }
         public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+        public void setFotoBase64(String fotoBase64) { this.fotoBase64 = fotoBase64; }
     }
 
     @Override
@@ -139,10 +161,15 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
                 String nama = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_NAMA));
                 String jenis = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_JENIS));
                 String penyelenggara = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_PENYELENGGARA));
+                String deskripsi = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_DESKRIPSI));
                 String tanggal = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL));
+                String waktu = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_WAKTU));
+                String lokasi = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_LOKASI));
                 long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL_TIMESTAMP));
+                String fotoBase64 = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_FOTO));
 
-                kegiatanList.add(new Kegiatan(id, nama, jenis, penyelenggara, tanggal, timestamp));
+                kegiatanList.add(new Kegiatan(id, nama, jenis, penyelenggara, deskripsi,
+                        tanggal, waktu, lokasi, timestamp, fotoBase64));
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -166,10 +193,15 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
                 String nama = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_NAMA));
                 String jenis = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_JENIS));
                 String penyelenggara = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_PENYELENGGARA));
+                String deskripsi = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_DESKRIPSI));
                 String tanggal = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL));
+                String waktu = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_WAKTU));
+                String lokasi = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_LOKASI));
                 long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_TANGGAL_TIMESTAMP));
+                String fotoBase64 = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_FOTO));
 
-                kegiatanList.add(new Kegiatan(id, nama, jenis, penyelenggara, tanggal, timestamp));
+                kegiatanList.add(new Kegiatan(id, nama, jenis, penyelenggara, deskripsi,
+                        tanggal, waktu, lokasi, timestamp, fotoBase64));
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -243,7 +275,8 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
         TextView tvTanggal = new TextView(this);
         LinearLayout.LayoutParams paramsTanggal = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         tvTanggal.setLayoutParams(paramsTanggal);
-        tvTanggal.setText(kegiatan.getTanggal());
+        String displayDate = kegiatan.getTanggal() + " " + kegiatan.getWaktu();
+        tvTanggal.setText(displayDate);
         tvTanggal.setTextColor(Color.parseColor("#666666"));
         tvTanggal.setTextSize(14);
 
@@ -323,10 +356,13 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Initialize dialog views
+        // Initialize dialog views - PERLU DITAMBAHKAN INPUT BARU
         EditText etNamaKegiatan = dialogView.findViewById(R.id.etNamaKegiatan);
         Spinner spinnerJenis = dialogView.findViewById(R.id.spinnerJenis);
         EditText etPenyelenggara = dialogView.findViewById(R.id.etPenyelenggara);
+        EditText etDeskripsi = dialogView.findViewById(R.id.etDeskripsi); // TAMBAH INI
+        EditText etLokasi = dialogView.findViewById(R.id.etLokasi); // TAMBAH INI
+        EditText etWaktu = dialogView.findViewById(R.id.etWaktu); // TAMBAH INI
         EditText etHari = dialogView.findViewById(R.id.etHari);
         EditText etBulan = dialogView.findViewById(R.id.etBulan);
         EditText etTahun = dialogView.findViewById(R.id.etTahun);
@@ -339,6 +375,9 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, jenisArray);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerJenis.setAdapter(adapter);
+
+        // Setup waktu (contoh: 09:00 - 17:00)
+        etWaktu.setHint("Contoh: 09:00 - 17:00");
 
         // Populate data if editing
         if (kegiatan != null) {
@@ -353,6 +392,9 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
             }
 
             etPenyelenggara.setText(kegiatan.getPenyelenggara());
+            etDeskripsi.setText(kegiatan.getDeskripsi());
+            etLokasi.setText(kegiatan.getLokasi());
+            etWaktu.setText(kegiatan.getWaktu());
 
             // Parse tanggal
             String[] tanggalParts = kegiatan.getTanggal().split(" ");
@@ -373,12 +415,16 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
             String nama = etNamaKegiatan.getText().toString().trim();
             String jenis = spinnerJenis.getSelectedItem().toString();
             String penyelenggara = etPenyelenggara.getText().toString().trim();
+            String deskripsi = etDeskripsi.getText().toString().trim();
+            String lokasi = etLokasi.getText().toString().trim();
+            String waktu = etWaktu.getText().toString().trim();
             String hari = etHari.getText().toString().trim();
             String bulan = etBulan.getText().toString().trim();
             String tahun = etTahun.getText().toString().trim();
 
             // Validation
-            if (nama.isEmpty() || penyelenggara.isEmpty() ||
+            if (nama.isEmpty() || penyelenggara.isEmpty() || deskripsi.isEmpty() ||
+                    lokasi.isEmpty() || waktu.isEmpty() ||
                     hari.isEmpty() || bulan.isEmpty() || tahun.isEmpty()) {
                 Toast.makeText(this, "Harap isi semua field", Toast.LENGTH_SHORT).show();
                 return;
@@ -404,9 +450,22 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
             calendar.set(year, month, day, 0, 0, 0);
             long timestamp = calendar.getTimeInMillis();
 
+            // Default fotoBase64 (kosong)
+            String fotoBase64 = "";
+
             if (editingPosition == -1) {
-                // Add new kegiatan to database
-                boolean success = dataManager.tambahKegiatan(nama, jenis, penyelenggara, tanggal, timestamp);
+                // Add new kegiatan to database - DIPERBAIKI dengan semua parameter
+                boolean success = dataManager.tambahKegiatan(
+                        nama,           // String nama
+                        jenis,          // String jenis
+                        penyelenggara,  // String penyelenggara
+                        deskripsi,      // String deskripsi
+                        tanggal,        // String tanggal
+                        waktu,          // String waktu
+                        lokasi,         // String lokasi
+                        timestamp,      // long timestamp
+                        fotoBase64      // String fotoBase64
+                );
 
                 if (success) {
                     // Reload data dari database
@@ -416,11 +475,19 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
                     Toast.makeText(this, "Gagal menambahkan kegiatan", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                // Update existing kegiatan in database
+                // Update existing kegiatan in database - DIPERBAIKI dengan semua parameter
                 Kegiatan kegiatanToUpdate = kegiatanList.get(editingPosition);
                 boolean success = dataManager.updateKegiatan(
                         kegiatanToUpdate.getId(),
-                        nama, jenis, penyelenggara, tanggal, timestamp
+                        nama,           // String nama
+                        jenis,          // String jenis
+                        penyelenggara,  // String penyelenggara
+                        deskripsi,      // String deskripsi
+                        tanggal,        // String tanggal
+                        waktu,          // String waktu
+                        lokasi,         // String lokasi
+                        timestamp,      // long timestamp
+                        fotoBase64      // String fotoBase64
                 );
 
                 if (success) {

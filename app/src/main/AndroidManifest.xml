@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <!-- Izin untuk akses storage -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Untuk Android 11+ (API 30+) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <!-- Izin jaringan jika ada fitur online -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Siera">
+        android:theme="@style/Theme.Siera"
+        tools:targetApi="31">
         <activity
-            android:name=".admin.ProfileActivity"
+            android:name=".ProfileUserActivity"
             android:exported="false" />
-        <activity
-            android:name=".admin.UserActivity"
-            android:exported="false" />
-        <activity
-            android:name=".admin.ManajemenKegiatanActivity"
-            android:exported="false" />
-        <activity
-            android:name=".admin.DashboardAdminActivity"
-            android:exported="false" /> <!-- SPLASH (HALAMAN PERTAMA) -->
+        <!-- SPLASH (HALAMAN PERTAMA) -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,13 +35,45 @@
         </activity> <!-- MAIN -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" /> <!-- REGISTER -->
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" /> <!-- REGISTER -->
         <activity
             android:name=".RegisterActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" /> <!-- DASHBOARD USER -->
         <activity
             android:name=".DashboardActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- DAFTAR KEGIATAN (USER) -->
+        <activity
+            android:name=".DaftarKegiatanActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- DETAIL KEGIATAN (USER) -->
+        <activity
+            android:name=".DetailKegiatanActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" /> <!-- ADMIN ACTIVITIES -->
+        <activity
+            android:name=".admin.DashboardAdminActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.ManajemenKegiatanActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".admin.UserActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".admin.ProfileActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

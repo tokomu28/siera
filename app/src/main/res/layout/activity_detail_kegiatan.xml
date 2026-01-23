@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Foto Kegiatan -->
+        <ImageView
+            android:id="@+id/ivFotoDetail"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_event1"
+            android:background="#F0F0F0"
+            android:contentDescription="Foto detail kegiatan"/>
+
+        <!-- Konten Detail -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Jenis Kegiatan -->
+            <TextView
+                android:id="@+id/tvJenisDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WORKSHOP"
+                android:textColor="#3B6EF5"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:background="#E8EEFF"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Judul Kegiatan -->
+            <TextView
+                android:id="@+id/tvJudulDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Workshop Android Development"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Penyelenggara -->
+            <TextView
+                android:id="@+id/tvPenyelenggaraDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Diselenggarakan oleh: Fakultas Teknologi Informasi"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Tanggal -->
+            <TextView
+                android:id="@+id/tvTanggalDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tanggal: 15 Jan 2025"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Waktu -->
+            <TextView
+                android:id="@+id/tvWaktuDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Waktu: 14.00"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Lokasi -->
+            <TextView
+                android:id="@+id/tvLokasiDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lokasi: Lab Komputer FTI"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- Deskripsi -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Deskripsi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvDeskripsiDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Workshop pengembangan aplikasi Android untuk pemula dengan materi dasar hingga menengah."
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:lineSpacingExtra="4dp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

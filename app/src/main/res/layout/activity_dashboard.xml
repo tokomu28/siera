@@ -16,6 +16,7 @@
         android:orientation="horizontal">
 
         <EditText
+            android:id="@+id/etSearchDashboard"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -26,12 +27,14 @@
             android:drawablePadding="8dp"/>
 
         <ImageView
+            android:id="@+id/ivNotifikasi"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="12dp"
             android:padding="12dp"
             android:background="@drawable/bg_circle"
-            android:src="@drawable/ic_notifikasi"/>
+            android:src="@drawable/ic_notifikasi"
+            android:contentDescription="Notifikasi"/>
     </LinearLayout>
 
     <!-- CONTENT -->
@@ -41,127 +44,13 @@
         android:layout_weight="1">
 
         <LinearLayout
+            android:id="@+id/cardContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- CARD 1 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="6dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="160dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/img_event1"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="RESEARCH"
-                            android:textColor="#3B6EF5"
-                            android:textStyle="bold"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Masa depan AI di bidang kesehatan"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="8dp"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="24 Oct 2025, 14.00 - FIKES"
-                            android:textSize="12sp"
-                            android:textColor="#888888"
-                            android:layout_marginTop="4dp"/>
-
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Details"
-                            android:layout_gravity="end"
-                            android:backgroundTint="#E8EEFF"
-                            android:textColor="#3B6EF5"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- CARD 2 -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="6dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="160dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/img_event2"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="INTERNSHIP"
-                            android:textColor="#7B61FF"
-                            android:textStyle="bold"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Magang berdampak"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="8dp"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="10 Des 2025, 09.00 - UNIV"
-                            android:textSize="12sp"
-                            android:textColor="#888888"
-                            android:layout_marginTop="4dp"/>
-
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Daftar"
-                            android:layout_gravity="end"
-                            android:backgroundTint="#3B6EF5"
-                            android:textColor="#FFFFFF"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            <!-- Cards akan ditambahkan secara dinamis di sini -->
 
         </LinearLayout>
     </ScrollView>
