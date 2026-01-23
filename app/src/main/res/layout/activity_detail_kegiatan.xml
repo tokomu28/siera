@@ -108,7 +108,22 @@
                 android:text="Workshop pengembangan aplikasi Android untuk pemula dengan materi dasar hingga menengah."
                 android:textSize="14sp"
                 android:textColor="#666666"
-                android:lineSpacingExtra="4dp"/>
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- Button Daftar Sekarang -->
+            <Button
+                android:id="@+id/btnDaftarSekarang"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DAFTAR SEKARANG"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="16dp"
+                android:background="@drawable/bg_gradient_blue"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"/>
 
         </LinearLayout>
     </LinearLayout>

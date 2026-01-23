@@ -1,10 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileUserActivity">
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Header dengan waktu -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="09.00"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/iv_profile_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_profile"
+            android:contentDescription="Profile Icon" />
+    </LinearLayout>
+
+    <!-- Judul Akun Profile -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Akun Profile"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:paddingBottom="32dp" />
+
+    <!-- Card untuk informasi profil -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        android:layout_marginBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Nama -->
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Xiera"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:paddingBottom="8dp" />
+
+            <!-- Program Studi -->
+            <TextView
+                android:id="@+id/tv_program_study"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FTS - Teknik Informatika"
+                android:textSize="16sp"
+                android:textColor="#666666"
+                android:paddingBottom="8dp" />
+
+            <!-- NPM -->
+            <TextView
+                android:id="@+id/tv_npm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="NPM - 231106040000"
+                android:textSize="16sp"
+                android:textColor="#666666" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Section Bookmarks -->
+
+
+    <!-- Card untuk Magang Berdampak -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_internship"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Internship Icon"
+                android:layout_marginEnd="16dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/tv_internship_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Magang berdampak"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:paddingBottom="4dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_internship_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="INTERNSHIP"
+                        android:textSize="12sp"
+                        android:textColor="#2196F3"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:layout_marginEnd="8dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_internship_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="20 Des 2025, 13.00 - UNIV"
+                    android:textSize="14sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Bookmark Icon"
+                android:tint="#2196F3" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Tombol Logout -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        android:layout_marginTop="32dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_logout"
+                android:contentDescription="Logout Icon"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Logout"
+                android:textSize="16sp"
+                android:textColor="#FF5722"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

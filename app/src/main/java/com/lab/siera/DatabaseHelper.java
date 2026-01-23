@@ -10,10 +10,13 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "siera.db";
-    private static final int DATABASE_VERSION = 5; // Update ke versi 5
+    private static final int DATABASE_VERSION = 6;
 
     // ========== TABEL USERS ==========
     public static final String TABLE_USERS = "users";
@@ -24,9 +27,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_USER_TYPE = "user_type";
 
-    // ========== TABEL KEGIATAN (DIPERBARUI) ==========
+    // ========== TABEL KEGIATAN ==========
     public static final String TABLE_KEGIATAN = "kegiatan";
-    public static final String COLUMN_KEGIATAN_ID = "kegiatan_id";
+    public static final String COLUMN_KEGIATAN_ID = "kegiatan_id"; // HANYA SATU KALI DI SINI
     public static final String COLUMN_KEGIATAN_NAMA = "nama_kegiatan";
     public static final String COLUMN_KEGIATAN_JENIS = "jenis";
     public static final String COLUMN_KEGIATAN_PENYELENGGARA = "penyelenggara";
@@ -35,7 +38,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_KEGIATAN_WAKTU = "waktu";
     public static final String COLUMN_KEGIATAN_LOKASI = "lokasi";
     public static final String COLUMN_KEGIATAN_TANGGAL_TIMESTAMP = "tanggal_timestamp";
-    public static final String COLUMN_KEGIATAN_FOTO = "foto"; // Kolom baru untuk foto
+    public static final String COLUMN_KEGIATAN_FOTO = "foto";
+
+    // ========== TABEL PENDAFTARAN ==========
+    public static final String TABLE_PENDAFTARAN = "pendaftaran";
+    public static final String COLUMN_PENDAFTARAN_ID = "pendaftaran_id";
+    public static final String COLUMN_USER_ID = "user_id";
+    // TIDAK PERLU DEKLARASI ULANG COLUMN_KEGIATAN_ID DI SINI
+    public static final String COLUMN_TANGGAL_PENDAFTARAN = "tanggal_pendaftaran";
+    public static final String COLUMN_STATUS = "status";
 
     // Query untuk membuat tabel users
     private static final String CREATE_TABLE_USERS =
@@ -48,7 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_USER_TYPE + " TEXT DEFAULT 'mahasiswa'" +
                     ")";
 
-    // Query untuk membuat tabel kegiatan (diperbarui)
+    // Query untuk membuat tabel kegiatan
     private static final String CREATE_TABLE_KEGIATAN =
             "CREATE TABLE " + TABLE_KEGIATAN + "(" +
                     COLUMN_KEGIATAN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -60,7 +71,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_KEGIATAN_WAKTU + " TEXT," +
                     COLUMN_KEGIATAN_LOKASI + " TEXT," +
                     COLUMN_KEGIATAN_TANGGAL_TIMESTAMP + " INTEGER," +
-                    COLUMN_KEGIATAN_FOTO + " TEXT" + // Foto disimpan sebagai Base64 string
+                    COLUMN_KEGIATAN_FOTO + " TEXT" +
+                    ")";
+
+    // Query untuk membuat tabel pendaftaran
+    private static final String CREATE_TABLE_PENDAFTARAN =
+            "CREATE TABLE " + TABLE_PENDAFTARAN + "(" +
+                    COLUMN_PENDAFTARAN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    COLUMN_USER_ID + " INTEGER NOT NULL," +
+                    COLUMN_KEGIATAN_ID + " INTEGER NOT NULL," + // GUNAKAN YANG SUDAH ADA
+                    COLUMN_TANGGAL_PENDAFTARAN + " TEXT NOT NULL," +
+                    COLUMN_STATUS + " TEXT DEFAULT 'pending'," +
+                    "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + ")," +
+                    "FOREIGN KEY(" + COLUMN_KEGIATAN_ID + ") REFERENCES " + TABLE_KEGIATAN + "(" + COLUMN_KEGIATAN_ID + ")" +
                     ")";
 
     public DatabaseHelper(Context context) {
@@ -71,20 +94,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Log.d("DATABASE", "Creating database tables...");
 
-        // Buat kedua tabel
+        // Buat ketiga tabel
         db.execSQL(CREATE_TABLE_USERS);
         db.execSQL(CREATE_TABLE_KEGIATAN);
+        db.execSQL(CREATE_TABLE_PENDAFTARAN);
 
         Log.d("DATABASE", "Tables created successfully");
 
-        // Insert admin default
+        // Insert data default
         insertDefaultAdmin(db);
-
-        // Insert sample mahasiswa untuk testing
         insertSampleUsers(db);
-
-        // Insert sample kegiatan
         insertSampleKegiatan(db);
+        insertSamplePendaftaran(db);
     }
 
     @Override
@@ -108,7 +129,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (oldVersion < 5) {
             try {
-                // Cek apakah kolom sudah ada
                 Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_KEGIATAN + " LIMIT 1", null);
                 String[] columnNames = cursor.getColumnNames();
                 cursor.close();
@@ -141,11 +161,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Log.d("DATABASE", "Database upgraded to version 5");
             } catch (Exception e) {
                 Log.e("DATABASE", "Error upgrading database: " + e.getMessage());
-                // Jika gagal, drop dan buat ulang tabel
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_KEGIATAN);
                 db.execSQL(CREATE_TABLE_KEGIATAN);
                 insertSampleKegiatan(db);
             }
+        }
+
+        if (oldVersion < 6) {
+            db.execSQL(CREATE_TABLE_PENDAFTARAN);
+            insertSamplePendaftaran(db);
+            Log.d("DATABASE", "Database upgraded to version 6 - Added pendaftaran table");
         }
     }
 
@@ -198,7 +223,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void insertSampleKegiatan(SQLiteDatabase db) {
-        // Insert sample kegiatan
         ContentValues kegiatan1 = new ContentValues();
         kegiatan1.put(COLUMN_KEGIATAN_NAMA, "Workshop Android Development");
         kegiatan1.put(COLUMN_KEGIATAN_JENIS, "Workshop");
@@ -227,6 +251,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.d("DATABASE", "Sample kegiatan created");
         } catch (Exception e) {
             Log.e("DATABASE", "Error inserting sample kegiatan: " + e.getMessage());
+        }
+    }
+
+    private void insertSamplePendaftaran(SQLiteDatabase db) {
+        ContentValues pendaftaran1 = new ContentValues();
+        pendaftaran1.put(COLUMN_USER_ID, 2);
+        pendaftaran1.put(COLUMN_KEGIATAN_ID, 1);
+        pendaftaran1.put(COLUMN_TANGGAL_PENDAFTARAN, "10 Jan 2025");
+        pendaftaran1.put(COLUMN_STATUS, "pending");
+
+        ContentValues pendaftaran2 = new ContentValues();
+        pendaftaran2.put(COLUMN_USER_ID, 3);
+        pendaftaran2.put(COLUMN_KEGIATAN_ID, 2);
+        pendaftaran2.put(COLUMN_TANGGAL_PENDAFTARAN, "12 Jan 2025");
+        pendaftaran2.put(COLUMN_STATUS, "pending");
+
+        try {
+            db.insert(TABLE_PENDAFTARAN, null, pendaftaran1);
+            db.insert(TABLE_PENDAFTARAN, null, pendaftaran2);
+            Log.d("DATABASE", "Sample pendaftaran created");
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error inserting sample pendaftaran: " + e.getMessage());
         }
     }
 
@@ -367,7 +413,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    // ========== METHODS UNTUK KEGIATAN (DIPERBARUI) ==========
+    // ========== METHODS UNTUK KEGIATAN ==========
     public boolean tambahKegiatan(String nama, String jenis, String penyelenggara,
                                   String deskripsi, String tanggal, String waktu,
                                   String lokasi, long timestamp, String fotoBase64) {
@@ -449,6 +495,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean deleteKegiatan(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
+            db.delete(TABLE_PENDAFTARAN,
+                    COLUMN_KEGIATAN_ID + " = ?",
+                    new String[]{String.valueOf(id)});
+
             int result = db.delete(TABLE_KEGIATAN,
                     COLUMN_KEGIATAN_ID + " = ?",
                     new String[]{String.valueOf(id)});
@@ -479,7 +529,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    // Method untuk mendapatkan 3 kegiatan terbaru
     public Cursor getLatestKegiatan(int limit) {
         SQLiteDatabase db = this.getReadableDatabase();
         try {
@@ -489,6 +538,184 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
             Log.e("DATABASE", "Error getting latest kegiatan: " + e.getMessage());
             return null;
+        }
+    }
+
+    // ========== METHODS UNTUK PENDAFTARAN ==========
+    public boolean daftarKegiatan(int userId, int kegiatanId, String tanggal) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String checkQuery = "SELECT * FROM " + TABLE_PENDAFTARAN +
+                " WHERE " + COLUMN_USER_ID + " = ? AND " +
+                COLUMN_KEGIATAN_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(checkQuery, new String[]{String.valueOf(userId), String.valueOf(kegiatanId)});
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.close();
+            db.close();
+            return false;
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_ID, userId);
+        values.put(COLUMN_KEGIATAN_ID, kegiatanId);
+        values.put(COLUMN_TANGGAL_PENDAFTARAN, tanggal);
+        values.put(COLUMN_STATUS, "pending");
+
+        try {
+            long result = db.insert(TABLE_PENDAFTARAN, null, values);
+            db.close();
+            return result != -1;
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error registering for kegiatan: " + e.getMessage());
+            db.close();
+            return false;
+        }
+    }
+
+    public boolean updateStatusPendaftaran(int pendaftaranId, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_STATUS, status);
+
+        try {
+            int result = db.update(TABLE_PENDAFTARAN, values,
+                    COLUMN_PENDAFTARAN_ID + " = ?",
+                    new String[]{String.valueOf(pendaftaranId)});
+            db.close();
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error updating status: " + e.getMessage());
+            db.close();
+            return false;
+        }
+    }
+
+    public Cursor getAllPendaftaran() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try {
+            String query = "SELECT p.*, " +
+                    "u." + COLUMN_NAMA + " as user_nama, " +
+                    "u." + COLUMN_NPM + " as user_npm, " +
+                    "k." + COLUMN_KEGIATAN_NAMA + " as kegiatan_nama, " +
+                    "k." + COLUMN_KEGIATAN_JENIS + " as kegiatan_jenis, " +
+                    "k." + COLUMN_KEGIATAN_TANGGAL + " as kegiatan_tanggal " +
+                    "FROM " + TABLE_PENDAFTARAN + " p " +
+                    "INNER JOIN " + TABLE_USERS + " u ON p." + COLUMN_USER_ID + " = u." + COLUMN_ID + " " +
+                    "INNER JOIN " + TABLE_KEGIATAN + " k ON p." + COLUMN_KEGIATAN_ID + " = k." + COLUMN_KEGIATAN_ID + " " +
+                    "ORDER BY p." + COLUMN_PENDAFTARAN_ID + " DESC";
+
+            return db.rawQuery(query, null);
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error getting all pendaftaran: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public Cursor getPendaftaranByStatus(String status) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try {
+            String query = "SELECT p.*, " +
+                    "u." + COLUMN_NAMA + " as user_nama, " +
+                    "u." + COLUMN_NPM + " as user_npm, " +
+                    "k." + COLUMN_KEGIATAN_NAMA + " as kegiatan_nama, " +
+                    "k." + COLUMN_KEGIATAN_JENIS + " as kegiatan_jenis, " +
+                    "k." + COLUMN_KEGIATAN_TANGGAL + " as kegiatan_tanggal " +
+                    "FROM " + TABLE_PENDAFTARAN + " p " +
+                    "INNER JOIN " + TABLE_USERS + " u ON p." + COLUMN_USER_ID + " = u." + COLUMN_ID + " " +
+                    "INNER JOIN " + TABLE_KEGIATAN + " k ON p." + COLUMN_KEGIATAN_ID + " = k." + COLUMN_KEGIATAN_ID + " " +
+                    "WHERE p." + COLUMN_STATUS + " = ? " +
+                    "ORDER BY p." + COLUMN_PENDAFTARAN_ID + " DESC";
+
+            return db.rawQuery(query, new String[]{status});
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error getting pendaftaran by status: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean isUserRegisteredForKegiatan(int userId, int kegiatanId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            String query = "SELECT * FROM " + TABLE_PENDAFTARAN +
+                    " WHERE " + COLUMN_USER_ID + " = ? AND " +
+                    COLUMN_KEGIATAN_ID + " = ?";
+
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId), String.valueOf(kegiatanId)});
+            return cursor.getCount() > 0;
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error checking registration: " + e.getMessage());
+            return false;
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+    }
+
+    public Cursor getPendaftaranByUserId(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        try {
+            String query = "SELECT p.*, " +
+                    "k." + COLUMN_KEGIATAN_NAMA + " as kegiatan_nama, " +
+                    "k." + COLUMN_KEGIATAN_JENIS + " as kegiatan_jenis, " +
+                    "k." + COLUMN_KEGIATAN_TANGGAL + " as kegiatan_tanggal, " +
+                    "k." + COLUMN_KEGIATAN_PENYELENGGARA + " as kegiatan_penyelenggara " +
+                    "FROM " + TABLE_PENDAFTARAN + " p " +
+                    "INNER JOIN " + TABLE_KEGIATAN + " k ON p." + COLUMN_KEGIATAN_ID + " = k." + COLUMN_KEGIATAN_ID + " " +
+                    "WHERE p." + COLUMN_USER_ID + " = ? " +
+                    "ORDER BY p." + COLUMN_PENDAFTARAN_ID + " DESC";
+
+            return db.rawQuery(query, new String[]{String.valueOf(userId)});
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error getting pendaftaran by user ID: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public int getJumlahPendaftaranByStatus(String status) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            String query = "SELECT COUNT(*) as total FROM " + TABLE_PENDAFTARAN +
+                    " WHERE " + COLUMN_STATUS + " = ?";
+
+            cursor = db.rawQuery(query, new String[]{status});
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+            return 0;
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error getting jumlah pendaftaran: " + e.getMessage());
+            return 0;
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+    }
+
+    public int getTotalPendaftaran() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            String query = "SELECT COUNT(*) as total FROM " + TABLE_PENDAFTARAN;
+
+            cursor = db.rawQuery(query, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+            return 0;
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error getting total pendaftaran: " + e.getMessage());
+            return 0;
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
         }
     }
 
@@ -520,6 +747,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public static String getCurrentDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+        return sdf.format(new Date());
+    }
+
     // ========== METHOD TAMBAHAN UNTUK DEBUG ==========
     public String getAllUsersAsString() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -547,6 +779,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         } catch (Exception e) {
             Log.e("DATABASE", "Error getting users: " + e.getMessage());
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+
+        return result.toString();
+    }
+
+    public String getAllPendaftaranAsString() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        StringBuilder result = new StringBuilder();
+
+        try {
+            String query = "SELECT p.*, u.nama as user_nama, k.nama_kegiatan " +
+                    "FROM " + TABLE_PENDAFTARAN + " p " +
+                    "INNER JOIN " + TABLE_USERS + " u ON p.user_id = u.id " +
+                    "INNER JOIN " + TABLE_KEGIATAN + " k ON p.kegiatan_id = k.kegiatan_id";
+
+            cursor = db.rawQuery(query, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PENDAFTARAN_ID));
+                    String userNama = cursor.getString(cursor.getColumnIndexOrThrow("user_nama"));
+                    String kegiatanNama = cursor.getString(cursor.getColumnIndexOrThrow("nama_kegiatan"));
+                    String tanggal = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TANGGAL_PENDAFTARAN));
+                    String status = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_STATUS));
+
+                    result.append("ID: ").append(id)
+                            .append(", User: ").append(userNama)
+                            .append(", Kegiatan: ").append(kegiatanNama)
+                            .append(", Tanggal: ").append(tanggal)
+                            .append(", Status: ").append(status)
+                            .append("\n");
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("DATABASE", "Error getting pendaftaran: " + e.getMessage());
         } finally {
             if (cursor != null) cursor.close();
             db.close();

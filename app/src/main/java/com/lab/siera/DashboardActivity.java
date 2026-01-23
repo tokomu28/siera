@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.lab.siera.admin.ProfileActivity;
 
 public class DashboardActivity extends AppCompatActivity {
 

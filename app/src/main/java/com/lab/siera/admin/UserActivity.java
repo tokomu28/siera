@@ -1,52 +1,62 @@
 package com.lab.siera.admin;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.lab.siera.DatabaseHelper;
+import com.lab.siera.DataManager;
 import com.lab.siera.R;
-import com.lab.siera.admin.ProfileActivity;
+import com.lab.siera.SessionManager;
 
 public class UserActivity extends AppCompatActivity {
 
     private EditText etSearch;
-    private CheckBox cbStatus1, cbStatus2;
     private ImageView btnBack, btnProfile, btnLogout, btnFilter;
     private BottomNavigationView bottomNav;
+    private LinearLayout containerPendaftaran;
+    private DataManager dataManager;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
+        dataManager = DataManager.getInstance(this);
+        sessionManager = new SessionManager(this);
+
         // Inisialisasi views
         initViews();
-        setupClickListeners();
+        setupClickListeners(); // Method ini sekarang sudah ada
         setupBottomNavigation();
+
+        // Load data pendaftaran
+        loadPendaftaranData();
     }
 
     private void initViews() {
         etSearch = findViewById(R.id.etSearch);
-        cbStatus1 = findViewById(R.id.cbStatus1);
-        cbStatus2 = findViewById(R.id.cbStatus2);
         btnBack = findViewById(R.id.btnBack);
         btnProfile = findViewById(R.id.btnProfile);
         btnLogout = findViewById(R.id.btnLogout);
         btnFilter = findViewById(R.id.btnFilter);
         bottomNav = findViewById(R.id.bottomNavBar);
+        containerPendaftaran = findViewById(R.id.containerPendaftaran);
     }
 
     private void setupClickListeners() {
         // Back button
-        btnBack.setOnClickListener(v -> {
-            finish();
-        });
+        btnBack.setOnClickListener(v -> finish());
 
         // Profile button di header
         btnProfile.setOnClickListener(v -> {
@@ -56,34 +66,207 @@ public class UserActivity extends AppCompatActivity {
 
         // Logout button di header
         btnLogout.setOnClickListener(v -> {
+            sessionManager.logoutUser();
             Intent intent = new Intent(UserActivity.this, com.lab.siera.MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finishAffinity();
+            finish();
         });
 
         // Filter button (Q button)
         btnFilter.setOnClickListener(v -> {
-            Toast.makeText(this, "Filter diterapkan", Toast.LENGTH_SHORT).show();
-            applyFilter();
+            String searchText = etSearch.getText().toString().trim();
+            if (searchText.isEmpty()) {
+                // Tampilkan semua data
+                loadPendaftaranData();
+                Toast.makeText(this, "Menampilkan semua data", Toast.LENGTH_SHORT).show();
+            } else {
+                // Filter berdasarkan pencarian
+                filterData(searchText);
+            }
+        });
+    }
+
+    private void loadPendaftaranData() {
+        // Kosongkan container terlebih dahulu
+        containerPendaftaran.removeAllViews();
+
+        // Dapatkan semua pendaftaran
+        Cursor cursor = dataManager.getAllPendaftaran();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int pendaftaranId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PENDAFTARAN_ID));
+                int userId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID));
+                int kegiatanId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_ID));
+                String tanggalPendaftaran = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TANGGAL_PENDAFTARAN));
+                String status = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_STATUS));
+
+                // Data dari join
+                String userNama = cursor.getString(cursor.getColumnIndexOrThrow("user_nama"));
+                String userNpm = cursor.getString(cursor.getColumnIndexOrThrow("user_npm"));
+                String kegiatanNama = cursor.getString(cursor.getColumnIndexOrThrow("kegiatan_nama"));
+                String kegiatanJenis = cursor.getString(cursor.getColumnIndexOrThrow("kegiatan_jenis"));
+                String kegiatanTanggal = cursor.getString(cursor.getColumnIndexOrThrow("kegiatan_tanggal"));
+
+                // Tambahkan item ke UI
+                addPendaftaranItem(pendaftaranId, userNama, userNpm, kegiatanNama,
+                        kegiatanJenis, kegiatanTanggal, tanggalPendaftaran, status);
+
+            } while (cursor.moveToNext());
+            cursor.close();
+        } else {
+            // Jika tidak ada data
+            TextView tvEmpty = new TextView(this);
+            tvEmpty.setText("Belum ada pendaftaran");
+            tvEmpty.setTextSize(16);
+            tvEmpty.setPadding(0, 50, 0, 0);
+            tvEmpty.setGravity(android.view.Gravity.CENTER);
+            containerPendaftaran.addView(tvEmpty);
+        }
+    }
+
+    private void addPendaftaranItem(int pendaftaranId, String userNama, String userNpm,
+                                    String kegiatanNama, String kegiatanJenis,
+                                    String kegiatanTanggal, String tanggalPendaftaran, String status) {
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View itemView = inflater.inflate(R.layout.item_pendaftaran, containerPendaftaran, false);
+
+        // Initialize views
+        TextView tvNamaPendaftar = itemView.findViewById(R.id.tvNamaPendaftar);
+        TextView tvNamaKegiatan = itemView.findViewById(R.id.tvNamaKegiatan);
+        TextView tvJenis = itemView.findViewById(R.id.tvJenis);
+        TextView tvTanggal = itemView.findViewById(R.id.tvTanggal);
+        TextView tvStatus = itemView.findViewById(R.id.tvStatus);
+        CheckBox cbStatus = itemView.findViewById(R.id.cbStatus);
+
+        // Set data
+        tvNamaPendaftar.setText(userNama + "\n(" + userNpm + ")");
+        tvNamaKegiatan.setText(kegiatanNama);
+        tvJenis.setText(kegiatanJenis);
+        tvTanggal.setText(kegiatanTanggal);
+        tvStatus.setText("Status: " + status);
+
+        // Set checkbox berdasarkan status
+        if (status.equals("approved")) {
+            cbStatus.setChecked(true);
+        } else {
+            cbStatus.setChecked(false);
+        }
+
+        // Set warna status
+        switch (status) {
+            case "approved":
+                tvStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                break;
+            case "rejected":
+                tvStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                break;
+            case "pending":
+                tvStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+                break;
+        }
+
+        // Set listener untuk checkbox
+        cbStatus.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            String newStatus = isChecked ? "approved" : "rejected";
+            updatePendaftaranStatus(pendaftaranId, newStatus, userNama, kegiatanNama);
         });
 
-        // Checkbox status perubahan
-        cbStatus1.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            updateStatus(1, isChecked);
+        // Tambahkan click listener untuk item
+        itemView.setOnClickListener(v -> {
+            showDetailPendaftaran(userNama, userNpm, kegiatanNama, kegiatanJenis,
+                    kegiatanTanggal, tanggalPendaftaran, status);
         });
 
-        cbStatus2.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            updateStatus(2, isChecked);
-        });
+        // Tambahkan ke container
+        containerPendaftaran.addView(itemView);
+    }
 
-        // Item pendaftaran klik
-        findViewById(R.id.item_pendaftaran_1).setOnClickListener(v -> {
-            showDetailPendaftaran(1);
-        });
+    private void updatePendaftaranStatus(int pendaftaranId, String status, String userNama, String kegiatanNama) {
+        boolean success = dataManager.updateStatusPendaftaran(pendaftaranId, status);
 
-        findViewById(R.id.item_pendaftaran_2).setOnClickListener(v -> {
-            showDetailPendaftaran(2);
-        });
+        if (success) {
+            String message = "Status pendaftaran " + userNama + " untuk " +
+                    kegiatanNama + " diubah menjadi " + status;
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+            // Refresh data
+            loadPendaftaranData();
+        } else {
+            Toast.makeText(this, "Gagal mengubah status", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void filterData(String keyword) {
+        // Kosongkan container terlebih dahulu
+        containerPendaftaran.removeAllViews();
+
+        // Dapatkan semua pendaftaran untuk difilter
+        Cursor cursor = dataManager.getAllPendaftaran();
+
+        boolean hasData = false;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int pendaftaranId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PENDAFTARAN_ID));
+                int userId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID));
+                int kegiatanId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KEGIATAN_ID));
+                String tanggalPendaftaran = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TANGGAL_PENDAFTARAN));
+                String status = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_STATUS));
+
+                // Data dari join
+                String userNama = cursor.getString(cursor.getColumnIndexOrThrow("user_nama"));
+                String userNpm = cursor.getString(cursor.getColumnIndexOrThrow("user_npm"));
+                String kegiatanNama = cursor.getString(cursor.getColumnIndexOrThrow("kegiatan_nama"));
+                String kegiatanJenis = cursor.getString(cursor.getColumnIndexOrThrow("kegiatan_jenis"));
+                String kegiatanTanggal = cursor.getString(cursor.getColumnIndexOrThrow("kegiatan_tanggal"));
+
+                // Filter berdasarkan keyword
+                if (userNama.toLowerCase().contains(keyword.toLowerCase()) ||
+                        userNpm.toLowerCase().contains(keyword.toLowerCase()) ||
+                        kegiatanNama.toLowerCase().contains(keyword.toLowerCase()) ||
+                        kegiatanJenis.toLowerCase().contains(keyword.toLowerCase()) ||
+                        status.toLowerCase().contains(keyword.toLowerCase())) {
+
+                    // Tambahkan item ke UI
+                    addPendaftaranItem(pendaftaranId, userNama, userNpm, kegiatanNama,
+                            kegiatanJenis, kegiatanTanggal, tanggalPendaftaran, status);
+                    hasData = true;
+                }
+
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        if (!hasData) {
+            // Jika tidak ada data yang cocok
+            TextView tvEmpty = new TextView(this);
+            tvEmpty.setText("Tidak ditemukan data dengan kata kunci: " + keyword);
+            tvEmpty.setTextSize(14);
+            tvEmpty.setPadding(0, 50, 0, 0);
+            tvEmpty.setGravity(android.view.Gravity.CENTER);
+            containerPendaftaran.addView(tvEmpty);
+        }
+    }
+
+    private void showDetailPendaftaran(String userNama, String userNpm, String kegiatanNama,
+                                       String kegiatanJenis, String kegiatanTanggal,
+                                       String tanggalPendaftaran, String status) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Detail Pendaftaran");
+        builder.setMessage(
+                "Nama: " + userNama + "\n" +
+                        "NPM: " + userNpm + "\n" +
+                        "Kegiatan: " + kegiatanNama + "\n" +
+                        "Jenis: " + kegiatanJenis + "\n" +
+                        "Tanggal Kegiatan: " + kegiatanTanggal + "\n" +
+                        "Tanggal Daftar: " + tanggalPendaftaran + "\n" +
+                        "Status: " + status
+        );
+        builder.setPositiveButton("TUTUP", null);
+        builder.show();
     }
 
     private void setupBottomNavigation() {
@@ -109,7 +292,7 @@ public class UserActivity extends AppCompatActivity {
                 if (intent != null) {
                     startActivity(intent);
                     overridePendingTransition(0, 0);
-                    finish(); // TAMBAHKAN INI!
+                    finish();
                 }
 
             } catch (Exception e) {
@@ -123,76 +306,11 @@ public class UserActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.nav_admin_users);
     }
 
-    private void applyFilter() {
-        String searchText = etSearch.getText().toString().trim();
-
-        if (searchText.isEmpty()) {
-            // Tampilkan semua data
-            findViewById(R.id.item_pendaftaran_1).setVisibility(View.VISIBLE);
-            findViewById(R.id.item_pendaftaran_2).setVisibility(View.VISIBLE);
-            Toast.makeText(this, "Menampilkan semua data", Toast.LENGTH_SHORT).show();
-        } else {
-            // Filter berdasarkan pencarian
-            filterData(searchText);
-        }
-    }
-
-    private void filterData(String keyword) {
-        boolean showItem1 = false;
-        boolean showItem2 = false;
-
-        // Cek item 1
-        String nama1 = ((android.widget.TextView) findViewById(R.id.tvNamaPendaftar1)).getText().toString();
-        String kegiatan1 = ((android.widget.TextView) findViewById(R.id.tvNamaKegiatan1)).getText().toString();
-
-        if (nama1.toLowerCase().contains(keyword.toLowerCase()) ||
-                kegiatan1.toLowerCase().contains(keyword.toLowerCase())) {
-            showItem1 = true;
-        }
-
-        // Cek item 2
-        String nama2 = ((android.widget.TextView) findViewById(R.id.tvNamaPendaftar2)).getText().toString();
-        String kegiatan2 = ((android.widget.TextView) findViewById(R.id.tvNamaKegiatan2)).getText().toString();
-
-        if (nama2.toLowerCase().contains(keyword.toLowerCase()) ||
-                kegiatan2.toLowerCase().contains(keyword.toLowerCase())) {
-            showItem2 = true;
-        }
-
-        // Atur visibility
-        findViewById(R.id.item_pendaftaran_1).setVisibility(showItem1 ? View.VISIBLE : View.GONE);
-        findViewById(R.id.item_pendaftaran_2).setVisibility(showItem2 ? View.VISIBLE : View.GONE);
-
-        if (!showItem1 && !showItem2) {
-            Toast.makeText(this, "Tidak ditemukan data dengan kata kunci: " + keyword, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void updateStatus(int itemId, boolean isApproved) {
-        String message = isApproved ? "Pendaftaran disetujui" : "Pendaftaran ditolak";
-        Toast.makeText(this, "Item " + itemId + ": " + message, Toast.LENGTH_SHORT).show();
-
-        // Di sini Anda bisa menambahkan logic untuk update status ke database
-    }
-
-    private void showDetailPendaftaran(int itemId) {
-        String nama = "";
-        String kegiatan = "";
-
-        if (itemId == 1) {
-            nama = ((android.widget.TextView) findViewById(R.id.tvNamaPendaftar1)).getText().toString();
-            kegiatan = ((android.widget.TextView) findViewById(R.id.tvNamaKegiatan1)).getText().toString();
-        } else if (itemId == 2) {
-            nama = ((android.widget.TextView) findViewById(R.id.tvNamaPendaftar2)).getText().toString();
-            kegiatan = ((android.widget.TextView) findViewById(R.id.tvNamaKegiatan2)).getText().toString();
-        }
-
-        Toast.makeText(this, "Detail: " + nama + " - " + kegiatan, Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
+        // Refresh data saat kembali ke activity
+        loadPendaftaranData();
         // Update bottom nav selection
         if (bottomNav != null) {
             bottomNav.setSelectedItemId(R.id.nav_admin_users);
