@@ -11,23 +11,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lab.siera.MainActivity;
 import com.lab.siera.R;
-import com.lab.siera.admin.ProfileActivity; // Pastikan import ini benar
+import com.lab.siera.SessionManager; // TAMBAHKAN IMPORT INI
 
 public class DashboardAdminActivity extends AppCompatActivity {
 
     private TextView tvTotalUsers, tvTotalPosts, tvActiveActivities, tvTotalRewards;
     private ImageView btnLogout, btnProfile;
     private BottomNavigationView bottomNav;
+    private SessionManager sessionManager; // TAMBAHKAN
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard_admin);
 
+        // Inisialisasi SessionManager
+        sessionManager = new SessionManager(this); // TAMBAHKAN
+
         initViews();
         setupClickListeners();
         setupBottomNavigation();
-        //loadDashboardData();
+        loadDashboardData();
     }
 
     private void initViews() {
@@ -83,12 +87,24 @@ public class DashboardAdminActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        // Logout button
+        // Logout button - PERBAIKAN
         btnLogout.setOnClickListener(v -> {
-            // Clear session/logout logic here
-            Intent intent = new Intent(DashboardAdminActivity.this, MainActivity.class);
-            startActivity(intent);
-            finishAffinity(); // Clear all activities
+            // Konfirmasi logout
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Apakah Anda yakin ingin logout?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        // Gunakan SessionManager untuk logout
+                        sessionManager.logoutUser();
+
+                        // Intent ke MainActivity dengan clear task
+                        Intent intent = new Intent(DashboardAdminActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Tidak", null)
+                    .show();
         });
 
         // Profile button di header
@@ -98,42 +114,42 @@ public class DashboardAdminActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Stats cards click listeners (jika ada CardView di layout)
+        // Stats cards click listeners
         View cvUsers = findViewById(R.id.cvUsers);
         View cvPosts = findViewById(R.id.cvPosts);
         View cvActivities = findViewById(R.id.cvActivities);
         View cvRewards = findViewById(R.id.cvRewards);
 
-//        if (cvUsers != null) {
-//            cvUsers.setOnClickListener(v -> {
-//                // Intent untuk UserActivity
-//                Intent intent = new Intent(DashboardAdminActivity.this, UserActivity.class);
-//                startActivity(intent);
-//            });
-//        }
-//
-//        if (cvPosts != null) {
-//            cvPosts.setOnClickListener(v -> {
-//                Toast.makeText(this, "Fitur post akan segera tersedia", Toast.LENGTH_SHORT).show();
-//            });
-//        }
-//
-//        if (cvActivities != null) {
-//            cvActivities.setOnClickListener(v -> {
-//                // Intent untuk ManajemenKegiatanActivity
-//                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
-//                startActivity(intent);
-//            });
-//        }
-//
-//        if (cvRewards != null) {
-//            cvRewards.setOnClickListener(v -> {
-//                Toast.makeText(this, "Fitur reward akan segera tersedia", Toast.LENGTH_SHORT).show();
-//            });
-//        }
-//    }
+        if (cvUsers != null) {
+            cvUsers.setOnClickListener(v -> {
+                // Intent untuk UserActivity
+                Intent intent = new Intent(DashboardAdminActivity.this, UserActivity.class);
+                startActivity(intent);
+            });
+        }
 
-    //private void loadDashboardData() {
+        if (cvPosts != null) {
+            cvPosts.setOnClickListener(v -> {
+                Toast.makeText(this, "Fitur post akan segera tersedia", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (cvActivities != null) {
+            cvActivities.setOnClickListener(v -> {
+                // Intent untuk ManajemenKegiatanActivity
+                Intent intent = new Intent(DashboardAdminActivity.this, ManajemenKegiatanActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        if (cvRewards != null) {
+            cvRewards.setOnClickListener(v -> {
+                Toast.makeText(this, "Fitur reward akan segera tersedia", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    private void loadDashboardData() {
         // In a real app, load data from database/API
         // For now, setting dummy data
         tvTotalUsers.setText("100");

@@ -248,4 +248,4 @@ public class MainActivity extends AppCompatActivity {
             finishAffinity();
         }
     }
-}a
+}

@@ -17,6 +17,7 @@ import com.lab.siera.DatabaseHelper;
 import com.lab.siera.DataManager;
 import com.lab.siera.R;
 import com.lab.siera.SessionManager;
+import androidx.appcompat.app.AlertDialog; // TAMBAHKAN IMPORT INI
 
 public class UserActivity extends AppCompatActivity {
 
@@ -37,7 +38,7 @@ public class UserActivity extends AppCompatActivity {
 
         // Inisialisasi views
         initViews();
-        setupClickListeners(); // Method ini sekarang sudah ada
+        setupClickListeners();
         setupBottomNavigation();
 
         // Load data pendaftaran
@@ -64,13 +65,23 @@ public class UserActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Logout button di header
+        // Logout button di header - DITAMBAHKAN POPUP KONFIRMASI
         btnLogout.setOnClickListener(v -> {
-            sessionManager.logoutUser();
-            Intent intent = new Intent(UserActivity.this, com.lab.siera.MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            // Konfirmasi logout
+            new AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Apakah Anda yakin ingin logout?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        // Gunakan SessionManager untuk logout
+                        sessionManager.logoutUser();
+
+                        Intent intent = new Intent(UserActivity.this, com.lab.siera.MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Tidak", null)
+                    .show();
         });
 
         // Filter button (Q button)

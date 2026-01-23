@@ -27,6 +27,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lab.siera.DataManager;
 import com.lab.siera.DatabaseHelper;
 import com.lab.siera.R;
+import com.lab.siera.SessionManager; // TAMBAHKAN IMPORT INI
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
     private List<Kegiatan> kegiatanList = new ArrayList<>();
     private int editingPosition = -1;
     private DataManager dataManager;
+    private SessionManager sessionManager; // TAMBAHKAN
 
     // Model class Kegiatan (diperbarui dengan semua field)
     class Kegiatan {
@@ -100,8 +102,9 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manajemen_kegiatan);
 
-        // Initialize DataManager
+        // Initialize DataManager dan SessionManager
         dataManager = DataManager.getInstance(this);
+        sessionManager = new SessionManager(this); // TAMBAHKAN INI
 
         // Initialize views
         containerKegiatan = findViewById(R.id.containerKegiatan);
@@ -111,16 +114,29 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
         // Setup bottom navigation
         setupBottomNavigation();
 
-        // Setup click listeners for header buttons
+        // Setup click listeners for header buttons - PERBAIKAN
         findViewById(R.id.btnProfile).setOnClickListener(v -> {
             Intent intent = new Intent(ManajemenKegiatanActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
 
+        // PERBAIKAN Logout button
         findViewById(R.id.btnLogout).setOnClickListener(v -> {
-            Intent intent = new Intent(ManajemenKegiatanActivity.this, com.lab.siera.MainActivity.class);
-            startActivity(intent);
-            finishAffinity();
+            // Konfirmasi logout
+            new AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Apakah Anda yakin ingin logout?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        // Gunakan SessionManager untuk logout
+                        sessionManager.logoutUser();
+
+                        Intent intent = new Intent(ManajemenKegiatanActivity.this, com.lab.siera.MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Tidak", null)
+                    .show();
         });
 
         // Back button
@@ -356,13 +372,13 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Initialize dialog views - PERLU DITAMBAHKAN INPUT BARU
+        // Initialize dialog views
         EditText etNamaKegiatan = dialogView.findViewById(R.id.etNamaKegiatan);
         Spinner spinnerJenis = dialogView.findViewById(R.id.spinnerJenis);
         EditText etPenyelenggara = dialogView.findViewById(R.id.etPenyelenggara);
-        EditText etDeskripsi = dialogView.findViewById(R.id.etDeskripsi); // TAMBAH INI
-        EditText etLokasi = dialogView.findViewById(R.id.etLokasi); // TAMBAH INI
-        EditText etWaktu = dialogView.findViewById(R.id.etWaktu); // TAMBAH INI
+        EditText etDeskripsi = dialogView.findViewById(R.id.etDeskripsi);
+        EditText etLokasi = dialogView.findViewById(R.id.etLokasi);
+        EditText etWaktu = dialogView.findViewById(R.id.etWaktu);
         EditText etHari = dialogView.findViewById(R.id.etHari);
         EditText etBulan = dialogView.findViewById(R.id.etBulan);
         EditText etTahun = dialogView.findViewById(R.id.etTahun);
@@ -454,17 +470,10 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
             String fotoBase64 = "";
 
             if (editingPosition == -1) {
-                // Add new kegiatan to database - DIPERBAIKI dengan semua parameter
+                // Add new kegiatan to database
                 boolean success = dataManager.tambahKegiatan(
-                        nama,           // String nama
-                        jenis,          // String jenis
-                        penyelenggara,  // String penyelenggara
-                        deskripsi,      // String deskripsi
-                        tanggal,        // String tanggal
-                        waktu,          // String waktu
-                        lokasi,         // String lokasi
-                        timestamp,      // long timestamp
-                        fotoBase64      // String fotoBase64
+                        nama, jenis, penyelenggara, deskripsi,
+                        tanggal, waktu, lokasi, timestamp, fotoBase64
                 );
 
                 if (success) {
@@ -475,19 +484,12 @@ public class ManajemenKegiatanActivity extends AppCompatActivity {
                     Toast.makeText(this, "Gagal menambahkan kegiatan", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                // Update existing kegiatan in database - DIPERBAIKI dengan semua parameter
+                // Update existing kegiatan in database
                 Kegiatan kegiatanToUpdate = kegiatanList.get(editingPosition);
                 boolean success = dataManager.updateKegiatan(
                         kegiatanToUpdate.getId(),
-                        nama,           // String nama
-                        jenis,          // String jenis
-                        penyelenggara,  // String penyelenggara
-                        deskripsi,      // String deskripsi
-                        tanggal,        // String tanggal
-                        waktu,          // String waktu
-                        lokasi,         // String lokasi
-                        timestamp,      // long timestamp
-                        fotoBase64      // String fotoBase64
+                        nama, jenis, penyelenggara, deskripsi,
+                        tanggal, waktu, lokasi, timestamp, fotoBase64
                 );
 
                 if (success) {

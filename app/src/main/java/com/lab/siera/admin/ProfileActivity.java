@@ -43,6 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finishAffinity();
         });
+
     }
 
     private void setupBottomNavigation() {
